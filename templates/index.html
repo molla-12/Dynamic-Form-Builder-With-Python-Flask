@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Dynamic Form Builder</title>
+		<link
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+			rel="stylesheet"
+		/>
+	</head>
+	<body>
+		<div class="container">
+			<div class="card mt-5">
+				<div class="card-header">
+					<h1 class="card-title">Build your form</h1>
+				</div>
+				<div class="card-body">
+					<form action="{{ url_for('save_form') }}" method="POST">
+						<div class="form-group">
+							<label for="form_title">Form Header:</label>
+							<input
+								type="text"
+								class="form-control"
+								id="form_title"
+								name="form_title"
+								required
+							/>
+						</div>
+
+						<div id="form_fields">
+							<!-- Form fields will be added dynamically here -->
+						</div>
+
+						<button type="button" class="btn btn-primary" onclick="addField()">
+							Add Field
+						</button>
+						<button type="submit" class="btn btn-success">Save Form</button>
+					</form>
+				</div>
+			</div>
+
+			<div class="card mt-5">
+				<div class="card-header">
+					<h2 class="card-title">Form Preview</h2>
+				</div>
+				<div class="card-body" id="form_preview">
+					<!-- Preview will be displayed here -->
+				</div>
+			</div>
+		</div>
+
+		<script>
+			function addField() {
+				var field = document.createElement("div");
+				field.innerHTML = `
+                <div class="form-group">
+                    <label for="field_type">Field Type:</label>
+                    <select class="form-control" name="field_type[]" onchange="updatePreview()" required>
+                        <option value="text">Text</option>
+                        <option value="email">Email</option>
+                        <option value="number">Number</option>
+                        <option value="file">File</option>
+                        <option value="textarea">Textarea</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="field_label">Field Label:</label>
+                    <input type="text" class="form-control" name="field_label[]" oninput="updatePreview()" required>
+                </div>
+                <div class="form-group">
+                    <label for="field_required">Required or Nullable:</label>
+                    <select class="form-control" name="field_required[]" onchange="updatePreview()">
+                        <option value="1">Required</option>
+                        <option value="0">Nullable</option>
+                    </select>
+                </div>
+            `;
+				document.getElementById("form_fields").appendChild(field);
+				updatePreview();
+			}
+
+			function updatePreview() {
+				var preview = document.getElementById("form_preview");
+				preview.innerHTML = ""; 
+
+				var fields = document.querySelectorAll("#form_fields > div"); // Select direct children
+				fields.forEach(function (field) {
+					var fieldType = field.querySelector("select[name='field_type[]']").value;
+					var fieldLabel = field.querySelector("input[name='field_label[]']").value;
+
+					var previewField = document.createElement("div");
+					previewField.className = "form-group";
+					previewField.innerHTML = `
+                    <label>${fieldLabel}:</label>
+                    <input type="${fieldType}" class="form-control" placeholder="${fieldLabel}">
+                `;
+					preview.appendChild(previewField);
+				});
+			}
+		</script>
+	</body>
+</html>
